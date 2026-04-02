@@ -61,7 +61,7 @@ export default function App() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 right-0 h-full w-72 bg-white border-l border-neutral-200 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:block ${
+        className={`fixed top-0 right-0 h-full w-72 bg-white border-l border-neutral-200 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static flex flex-col ${
           isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -99,6 +99,13 @@ export default function App() {
             <span>القياس الافتراضي</span>
           </button>
         </nav>
+        
+        <div className="mt-auto p-6 border-t border-neutral-100">
+          <p className="text-sm text-neutral-500 text-center leading-relaxed">
+            مع تحيات المطور<br />
+            <span className="font-bold text-neutral-900 text-base">Amir Lamay</span>
+          </p>
+        </div>
       </aside>
 
       {/* Main Content */}
