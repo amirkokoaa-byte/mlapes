@@ -13,15 +13,15 @@ export default function SizeCalculator() {
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!height || !weight || !width) {
-      setError('يرجى إدخال جميع البيانات');
+    if (!height || !weight) {
+      setError('يرجى إدخال الطول والوزن على الأقل');
       return;
     }
     
     setLoading(true);
     setError('');
     try {
-      const res = await getSizeRecommendations(Number(height), Number(weight), Number(width));
+      const res = await getSizeRecommendations(Number(height), Number(weight), width ? Number(width) : undefined);
       setResult(res);
     } catch (err) {
       console.error(err);
@@ -76,7 +76,7 @@ export default function SizeCalculator() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">العرض / محيط الصدر (سم)</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">العرض / محيط الصدر (سم) - <span className="text-neutral-400 font-normal">اختياري</span></label>
             <div className="relative">
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-neutral-400">
                 <Maximize2 size={18} />
@@ -87,7 +87,6 @@ export default function SizeCalculator() {
                 onChange={(e) => setWidth(e.target.value)}
                 className="block w-full pr-10 pl-3 py-2.5 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-shadow"
                 placeholder="مثال: 100"
-                required
               />
             </div>
           </div>

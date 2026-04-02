@@ -1,12 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-export async function getSizeRecommendations(height: number, weight: number, width: number) {
+export async function getSizeRecommendations(height: number, weight: number, width?: number) {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  const widthText = width ? `العرض/محيط الصدر: ${width} سم` : 'العرض/محيط الصدر: غير متوفر';
   const prompt = `بناءً على قياسات الجسم التالية:
 الطول: ${height} سم
 الوزن: ${weight} كجم
-العرض/محيط الصدر: ${width} سم
+${widthText}
 
 يرجى التوصية بالمقاسات المناسبة للملابس التالية:
 1. قميص
@@ -43,28 +43,44 @@ export async function getSizeRecommendations(height: number, weight: number, wid
   return JSON.parse(response.text || "{}");
 }
 
-export async function generateVirtualTryOn(personImageBase64: string, personMimeType: string, clothingImageBase64: string, clothingMimeType: string) {
+export async function generateVirtualTryOn(
+  personImageBase64: string, 
+  personMimeType: string, 
+  clothingImages: { url: string; mime: string }[]
+) {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  
+  const parts: any[] = [
+    {
+      inlineData: {
+        data: personImageBase64.split(',')[1],
+        mimeType: personMimeType,
+      },
+    }
+  ];
+
+  clothingImages.forEach(img => {
+    parts.push({
+      inlineData: {
+        data: img.url.split(',')[1],
+        mimeType: img.mime,
+      }
+    });
+  });
+
+  parts.push({
+    text: 'قم بتعديل الصورة الأولى (للشخص) بحيث يرتدي جميع قطع الملابس الموجودة في الصور الأخرى. اجعل التعديل واقعياً جداً وعالي الدقة (High Resolution, Photorealistic, 4k) بحيث يظهر الجسم كاملاً متناسقاً مع الملابس. حافظ على ملامح الشخص وخلفية الصورة الأصلية قدر الإمكان.',
+  });
+
   const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
-    contents: {
-      parts: [
-        {
-          inlineData: {
-            data: personImageBase64.split(',')[1],
-            mimeType: personMimeType,
-          },
-        },
-        {
-          inlineData: {
-            data: clothingImageBase64.split(',')[1],
-            mimeType: clothingMimeType,
-          },
-        },
-        {
-          text: 'قم بتعديل الصورة الأولى (للشخص) بحيث يرتدي قطعة الملابس الموجودة في الصورة الثانية. اجعل التعديل واقعياً قدر الإمكان مع الحفاظ على ملامح الشخص وخلفية الصورة.',
-        },
-      ],
-    },
+    model: 'gemini-3.1-flash-image-preview',
+    contents: { parts },
+    config: {
+      imageConfig: {
+        imageSize: "2K",
+        aspectRatio: "3:4"
+      }
+    }
   });
 
   for (const part of response.candidates?.[0]?.content?.parts || []) {
