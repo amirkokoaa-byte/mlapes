@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Ruler, Sparkles, Menu, X, Key } from 'lucide-react';
+import React, { useState } from 'react';
+import { Ruler, Sparkles, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import SizeCalculator from './components/SizeCalculator';
 import VirtualTryOn from './components/VirtualTryOn';
@@ -7,42 +7,6 @@ import VirtualTryOn from './components/VirtualTryOn';
 export default function App() {
   const [activeTab, setActiveTab] = useState<'sizes' | 'tryon'>('sizes');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [hasKey, setHasKey] = useState(true);
-
-  useEffect(() => {
-    const aistudio = (window as any).aistudio;
-    if (aistudio?.hasSelectedApiKey) {
-      aistudio.hasSelectedApiKey().then(setHasKey);
-    }
-  }, []);
-
-  const handleSelectKey = async () => {
-    const aistudio = (window as any).aistudio;
-    if (aistudio?.openSelectKey) {
-      await aistudio.openSelectKey();
-      setHasKey(true);
-    }
-  };
-
-  if (!hasKey) {
-    return (
-      <div dir="rtl" className="min-h-screen bg-neutral-50 flex items-center justify-center p-4 font-sans">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-neutral-200 max-w-md text-center">
-          <Key className="w-12 h-12 mx-auto text-neutral-400 mb-4" />
-          <h2 className="text-2xl font-bold mb-2">مطلوب مفتاح API</h2>
-          <p className="text-neutral-600 mb-6">
-            لاستخدام ميزة القياس الافتراضي عالية الجودة، يرجى اختيار مفتاح API الخاص بك.
-          </p>
-          <button
-            onClick={handleSelectKey}
-            className="bg-neutral-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-neutral-800 transition-colors w-full"
-          >
-            اختيار مفتاح API
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-neutral-50 text-neutral-900 font-sans selection:bg-neutral-200 flex">
