@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { generateVirtualTryOn } from '../lib/gemini';
-import { Upload, Camera, Loader2, Image as ImageIcon, RefreshCw, Sparkles, Shirt, X, Plus, Download } from 'lucide-react';
+import { generateVirtualTryOn, editImage } from '../lib/gemini';
+import { Upload, Camera, Loader2, Image as ImageIcon, RefreshCw, Sparkles, Shirt, X, Plus, Download, Wand2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function VirtualTryOn() {
@@ -9,6 +9,8 @@ export default function VirtualTryOn() {
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   const personInputRef = useRef<HTMLInputElement>(null);
   const clothingInputRef = useRef<HTMLInputElement>(null);
@@ -81,11 +83,33 @@ export default function VirtualTryOn() {
     document.body.removeChild(link);
   };
 
+  const handleEditImage = async () => {
+    if (!editPrompt.trim() || !resultImage) return;
+    
+    setIsEditing(true);
+    setError('');
+    
+    try {
+      const mimeMatch = resultImage.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
+      
+      const newImage = await editImage(resultImage, mimeType, editPrompt);
+      setResultImage(newImage);
+      setEditPrompt('');
+    } catch (err: any) {
+      console.error(err);
+      setError(`حدث خطأ أثناء التعديل: ${err?.message || 'خطأ غير معروف'}`);
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
   const reset = () => {
     setPersonImage(null);
     setClothingImages([]);
     setResultImage(null);
     setError('');
+    setEditPrompt('');
   };
 
   return (
@@ -240,8 +264,45 @@ export default function VirtualTryOn() {
               </button>
             </div>
           </div>
-          <div className="rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200">
+          <div className="rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200 mb-6">
             <img src={resultImage} alt="Virtual Try On Result" className="w-full h-auto max-h-[600px] object-contain" />
+          </div>
+
+          {/* AI Editing Section */}
+          <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200">
+            <h3 className="text-sm font-bold mb-3 flex items-center gap-2 text-neutral-800">
+              <Wand2 size={16} className="text-blue-500" />
+              تعديل الصورة بالذكاء الاصطناعي (مجاني)
+            </h3>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={editPrompt}
+                onChange={(e) => setEditPrompt(e.target.value)}
+                placeholder="مثال: احذف الخلفية، اجعل الشخص يبتسم، اجعل الخلفية بيضاء..."
+                className="flex-1 px-4 py-2 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none text-sm bg-white"
+                disabled={isEditing}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && editPrompt.trim() && !isEditing) {
+                    handleEditImage();
+                  }
+                }}
+              />
+              <button
+                onClick={handleEditImage}
+                disabled={isEditing || !editPrompt.trim()}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+              >
+                {isEditing ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    جاري التعديل...
+                  </>
+                ) : (
+                  'تطبيق'
+                )}
+              </button>
+            </div>
           </div>
         </motion.div>
       )}

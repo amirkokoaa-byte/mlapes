@@ -85,3 +85,36 @@ export async function generateVirtualTryOn(
   
   throw new Error("لم يتم العثور على صورة في الرد");
 }
+
+export async function editImage(
+  imageBase64: string,
+  mimeType: string,
+  prompt: string
+) {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  
+  const parts: any[] = [
+    {
+      inlineData: {
+        data: imageBase64.split(',')[1],
+        mimeType: mimeType,
+      },
+    },
+    {
+      text: prompt,
+    }
+  ];
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: { parts }
+  });
+
+  for (const part of response.candidates?.[0]?.content?.parts || []) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
+    }
+  }
+
+  throw new Error("لم يتم العثور على صورة في الرد");
+}
