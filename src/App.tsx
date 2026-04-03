@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Ruler, Sparkles, Menu, X } from 'lucide-react';
+import { Ruler, Sparkles, Menu, X, ScanFace, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import SizeCalculator from './components/SizeCalculator';
 import VirtualTryOn from './components/VirtualTryOn';
+import BodyScanner from './components/BodyScanner';
+import ARMirror from './components/ARMirror';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'sizes' | 'tryon'>('sizes');
+  const [activeTab, setActiveTab] = useState<'sizes' | 'tryon' | 'scanner' | 'armirror'>('sizes');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
@@ -54,6 +56,15 @@ export default function App() {
             <span>حاسبة المقاسات</span>
           </button>
           <button
+            onClick={() => { setActiveTab('scanner'); setIsSidebarOpen(false); }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+              activeTab === 'scanner' ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'
+            }`}
+          >
+            <ScanFace size={20} />
+            <span>الكشف التلقائي (AI)</span>
+          </button>
+          <button
             onClick={() => { setActiveTab('tryon'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
               activeTab === 'tryon' ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'
@@ -61,6 +72,15 @@ export default function App() {
           >
             <Sparkles size={20} />
             <span>القياس الافتراضي</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('armirror'); setIsSidebarOpen(false); }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+              activeTab === 'armirror' ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'
+            }`}
+          >
+            <Camera size={20} />
+            <span>تقنية AR</span>
           </button>
         </nav>
         
@@ -92,13 +112,24 @@ export default function App() {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <div className="max-w-4xl mx-auto">
             <AnimatePresence mode="wait">
-              {activeTab === 'sizes' ? (
+              {activeTab === 'sizes' && (
                 <motion.div key="sizes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                   <SizeCalculator />
                 </motion.div>
-              ) : (
+              )}
+              {activeTab === 'scanner' && (
+                <motion.div key="scanner" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                  <BodyScanner />
+                </motion.div>
+              )}
+              {activeTab === 'tryon' && (
                 <motion.div key="tryon" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                   <VirtualTryOn />
+                </motion.div>
+              )}
+              {activeTab === 'armirror' && (
+                <motion.div key="armirror" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                  <ARMirror />
                 </motion.div>
               )}
             </AnimatePresence>

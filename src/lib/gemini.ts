@@ -1,5 +1,47 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
+export async function estimateBodyMeasurements(imageBase64: string, mimeType: string) {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  const prompt = `قم بتحليل صورة هذا الشخص بدقة واستنتج القياسات التقريبية التالية:
+- الطول (بين 140 و 220 سم)
+- الوزن (بين 40 و 150 كجم)
+- عرض/محيط الصدر (بين 30 و 60 سم للعرض)
+
+قم بإرجاع النتيجة بتنسيق JSON فقط يحتوي على المفاتيح التالية بأرقام صحيحة:
+{
+  "height": 170,
+  "weight": 70,
+  "width": 45
+}`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: [
+      {
+        inlineData: {
+          data: imageBase64.split(',')[1],
+          mimeType: mimeType,
+        }
+      },
+      { text: prompt }
+    ],
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          height: { type: Type.NUMBER },
+          weight: { type: Type.NUMBER },
+          width: { type: Type.NUMBER },
+        },
+        required: ["height", "weight", "width"],
+      }
+    }
+  });
+
+  return JSON.parse(response.text || "{}");
+}
+
 export async function getSizeRecommendations(height: number, weight: number, width?: number) {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
   const widthText = width ? `العرض/محيط الصدر: ${width} سم` : 'العرض/محيط الصدر: غير متوفر';
