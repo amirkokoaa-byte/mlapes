@@ -83,8 +83,9 @@ export default function VirtualTryOn() {
     document.body.removeChild(link);
   };
 
-  const handleEditImage = async () => {
-    if (!editPrompt.trim() || !resultImage) return;
+  const handleEditImage = async (overridePrompt?: string) => {
+    const promptToUse = typeof overridePrompt === 'string' ? overridePrompt : editPrompt;
+    if (!promptToUse.trim() || !resultImage) return;
     
     setIsEditing(true);
     setError('');
@@ -93,9 +94,9 @@ export default function VirtualTryOn() {
       const mimeMatch = resultImage.match(/^data:(image\/[a-zA-Z+]+);base64,/);
       const mimeType = mimeMatch ? mimeMatch[1] : 'image/png';
       
-      const newImage = await editImage(resultImage, mimeType, editPrompt);
+      const newImage = await editImage(resultImage, mimeType, promptToUse);
       setResultImage(newImage);
-      setEditPrompt('');
+      if (typeof overridePrompt !== 'string') setEditPrompt('');
     } catch (err: any) {
       console.error(err);
       setError(`حدث خطأ أثناء التعديل: ${err?.message || 'خطأ غير معروف'}`);
@@ -270,10 +271,20 @@ export default function VirtualTryOn() {
 
           {/* AI Editing Section */}
           <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200">
-            <h3 className="text-sm font-bold mb-3 flex items-center gap-2 text-neutral-800">
-              <Wand2 size={16} className="text-blue-500" />
-              تعديل الصورة بالذكاء الاصطناعي (مجاني)
-            </h3>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
+              <h3 className="text-sm font-bold flex items-center gap-2 text-neutral-800">
+                <Wand2 size={16} className="text-blue-500" />
+                تعديل الصورة بالذكاء الاصطناعي (مجاني)
+              </h3>
+              <button
+                onClick={() => handleEditImage("Act as an image enhancement AI. Analyze this virtual fitting result and regenerate it in ultra-high definition (4K), maintaining exact person features and clothing textures. Remove any blur and enhance lighting for a professional photoshoot look.")}
+                disabled={isEditing}
+                className="text-xs bg-purple-100 text-purple-700 hover:bg-purple-200 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-colors"
+              >
+                <Sparkles size={14} />
+                تحسين الجودة (4K)
+              </button>
+            </div>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -289,7 +300,7 @@ export default function VirtualTryOn() {
                 }}
               />
               <button
-                onClick={handleEditImage}
+                onClick={() => handleEditImage()}
                 disabled={isEditing || !editPrompt.trim()}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
               >
