@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 export async function getSizeRecommendations(height: number, weight: number, width?: number) {
-  const ai = new GoogleGenAI({ apiKey: "AIzaSyDExc6J8juEEOCSnBHpGsqe7lvWD80z32I" });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
   const widthText = width ? `العرض/محيط الصدر: ${width} سم` : 'العرض/محيط الصدر: غير متوفر';
   const prompt = `بناءً على قياسات الجسم التالية:
 الطول: ${height} سم
@@ -48,7 +48,7 @@ export async function generateVirtualTryOn(
   personMimeType: string, 
   clothingImages: { url: string; mime: string }[]
 ) {
-  const ai = new GoogleGenAI({ apiKey: "AIzaSyDExc6J8juEEOCSnBHpGsqe7lvWD80z32I" });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
   
   const parts: any[] = [
     {
@@ -73,14 +73,8 @@ export async function generateVirtualTryOn(
   });
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3.1-flash-image-preview',
-    contents: { parts },
-    config: {
-      imageConfig: {
-        imageSize: "2K",
-        aspectRatio: "3:4"
-      }
-    }
+    model: 'gemini-2.5-flash-image',
+    contents: { parts }
   });
 
   for (const part of response.candidates?.[0]?.content?.parts || []) {

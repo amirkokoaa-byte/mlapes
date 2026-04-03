@@ -63,9 +63,9 @@ export default function VirtualTryOn() {
         clothingImages
       );
       setResultImage(result);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('حدث خطأ أثناء معالجة الصورة. قد تكون الصور غير واضحة أو غير مدعومة.');
+      setError(`حدث خطأ أثناء معالجة الصورة: ${err?.message || 'خطأ غير معروف'}. يرجى التأكد من أن الصور واضحة ومناسبة.`);
     } finally {
       setLoading(false);
     }
