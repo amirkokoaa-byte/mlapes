@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 export async function estimateBodyMeasurements(imageBase64: string, mimeType: string) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const prompt = `قم بتحليل صورة هذا الشخص بدقة واستنتج القياسات التقريبية التالية:
 - الطول (بين 140 و 220 سم)
 - الوزن (بين 40 و 150 كجم)
@@ -43,7 +43,7 @@ export async function estimateBodyMeasurements(imageBase64: string, mimeType: st
 }
 
 export async function getSizeRecommendations(height: number, weight: number, width?: number) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const widthText = width ? `العرض/محيط الصدر: ${width} سم` : 'العرض/محيط الصدر: غير متوفر';
   const prompt = `بناءً على قياسات الجسم التالية:
 الطول: ${height} سم
@@ -90,7 +90,7 @@ export async function generateVirtualTryOn(
   personMimeType: string, 
   clothingImages: { url: string; mime: string }[]
 ) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const parts: any[] = [
     {
@@ -133,7 +133,7 @@ export async function editImage(
   mimeType: string,
   prompt: string
 ) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY as string });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const parts: any[] = [
     {
